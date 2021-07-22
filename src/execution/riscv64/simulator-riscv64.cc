@@ -3163,7 +3163,7 @@ void Simulator::DecodeCRType() {
                  instr_.RvcRs2Value() != 0) {  // c.mv
         set_rvc_rd(sext_xlen(rvc_rs2()));
       } else {
-        UNSUPPORTED_RISCV();
+        UNSUPPORTED();
       }
       break;
     case 0b1001:
@@ -3225,7 +3225,7 @@ void Simulator::DecodeCIType() {
     case RO_C_LI:
       set_rvc_rd(sext_xlen(rvc_imm6()));
       break;
-    case RO_C_LUI_ADD:
+    case RO_C_LUI_ADDI16SP:
       if (instr_.RvcRdValue() == 2) {
         // c.addi16sp
         int64_t value = get_register(sp) + rvc_imm6_addi16sp();
@@ -3360,13 +3360,13 @@ void Simulator::DecodeCJType() {
 void Simulator::DecodeCBType() {
   switch (instr_.RvcOpcode()) {
     case RO_C_BNEZ:
-      if (rvc_rs1() != 0) {
+      if (rvc_rs1s() != 0) {
         int64_t next_pc = get_pc() + rvc_imm8_b();
         set_pc(next_pc);
       }
       break;
     case RO_C_BEQZ:
-      if (rvc_rs1() == 0) {
+      if (rvc_rs1s() == 0) {
         int64_t next_pc = get_pc() + rvc_imm8_b();
         set_pc(next_pc);
       }
@@ -3407,7 +3407,6 @@ void Simulator::InstructionDecode(Instruction* instr) {
     // PrintF("EXECUTING  0x%08" PRIxPTR "   %-44s\n",
     //        reinterpret_cast<intptr_t>(instr), buffer.begin());
   }
-
   instr_ = instr;
   switch (instr_.InstructionType()) {
     case Instruction::kRType:
